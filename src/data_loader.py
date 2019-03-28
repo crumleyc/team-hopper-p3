@@ -143,11 +143,18 @@ class NeuronLoader:
 		output : 2D numpy array
 			Mask image
 		"""
-		with open(path, 'r') as f:
-			regions_json = json.load(f)
-		regions = many([region['coordinates'] for region in regions_json])
-		_mask = truth.mask(dims=(512,512), stroke='white', fill='white', background='black')
-		return _mask
+
+		with open(path) as f:
+    		regions = json.load(f)
+
+		def tomask(coords):
+    		mask = zeros(dims)
+    		c,v = zip(*coords)
+    		mask[c,v] = 1
+    		return mask
+
+		masks = array([tomask(s['coordinates']) for s in regions])
+		print(masks.shape)
 
 
 	def mask_to_region(self, image):
