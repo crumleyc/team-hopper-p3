@@ -1,5 +1,5 @@
 import argparse
-from src.data_loader import DataLoader
+from src.data_loader import NeuronLoader
 
 
 parser = argparse.ArgumentParser(description='Team Hopper : Neuron Finder')
@@ -36,7 +36,7 @@ else:
 	test_opts = ['00.00', '00.01', '01.00', '01.01', '02.00', '02.01', '03.00'
 	'04.00', '04.01']
 
-dl = DataLoader(url, data, train_opts, test_opts)
+nl = DataLoader(url, data, train_opts, test_opts)
 
 if model == 'nmf':
 	pass

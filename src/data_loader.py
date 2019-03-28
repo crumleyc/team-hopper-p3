@@ -10,12 +10,17 @@ from regional import many
 
 def region_to_mask(file):
 	"""
-	Converts region file into mask
+	Converts the regions JSON file into mask
 
 	Arguments
 	---------
-	file : JSON file
-		JSON file which needs to be converted into corresponding mask
+	path : string
+		Path to JSON file which needs to be converted into corresponding mask
+
+	Returns
+	-------
+	output : 2D numpy array
+		Mask image
 	"""
 	nl = NeuronLoader()
 	nl.region_to_mask(file)
