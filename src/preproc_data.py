@@ -19,6 +19,11 @@ args = parser.parse_args()
 #The directory where the training and testing data are
 data = 'neuron_data'
 
+#Checking to make sure the neuron data directory is given correctly
+if(not os.path.isdir(data)):
+    sys.exit('Data directory does not exist')
+
+
 #where the new transformed data will be stored
 new_dir = 'preprec_neuron_data'
 os.mkdir(new_dir)
@@ -26,9 +31,7 @@ os.mkdir(new_dir)
 #Only taking a certain number of images from each sample
 img_iterator = 100
 
-#Checking to make sure the neuron data directory is given correctly
-if(not os.path.isdir(data)):
-    sys.exit('Data directory does not exist')
+
 
 for dir in os.listdir(data):
     # dir should be train or test
