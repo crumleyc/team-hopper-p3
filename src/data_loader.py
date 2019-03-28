@@ -31,13 +31,13 @@ def region_to_mask(file):
 	files = sorted(glob(file'/images/*.tiff'))
 	imgs = array([imread(f) for f in files])
 	print(imgs.shape)
-    dims = imgs.shape[1:]
+    	dims = imgs.shape[1:]
 
 	"""
 	load the regions (training data only)
 	"""
 	with open(file'/regions/regions.json') as f:
-    regions = json.load(f)
+    		regions = json.load(f)
 
 	def tomask(coords):
 	    mask = zeros(dims)
