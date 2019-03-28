@@ -5,6 +5,7 @@ import shutil
 import numpy as np
 import json
 import cv2
+from regional import many
 
 
 def region_to_mask(file):
@@ -16,8 +17,8 @@ def region_to_mask(file):
 	file : JSON file
 		JSON file which needs to be converted into corresponding mask
 	"""
-	dl = DataLoader()
-	dl.region_to_mask(file)
+	nl = NeuronLoader()
+	nl.region_to_mask(file)
 
 
 def mask_to_region(image):
@@ -34,11 +35,11 @@ def mask_to_region(image):
 	output : list
 		List to be written into JSON file 
 	"""
-	dl = DataLoader()
-	dl.mask_to_region(image)
+	nl = NeuronLoader()
+	nl.mask_to_region(image)
 
 
-class DataLoader:
+class NeuronLoader:
 	"""
 	1. Downloads 'NeuronFinder'	dataset from Google Storage Bucket
 	2. Sets up data folder with 'train', 'test' subdirectories
@@ -47,7 +48,7 @@ class DataLoader:
 	"""
 	def __init__(self, gs_url, data, train_opts, test_opts):
 		"""
-		Initializes DataLoader class
+		Initializes NeuronLoader class
 
 		Arguments
 		---------
@@ -124,33 +125,38 @@ class DataLoader:
 				cv2.imwrite(os.path.join(self.data, 'masks', train_file + '.png'), output)
 
 	
-	def region_to_mask(self, file):
-	"""
-	Converts region file into mask
+	def region_to_mask(self, path):
+		"""
+		Converts the regions JSON file into mask
 
-	Arguments
-	---------
-	file : JSON file
-		JSON file which needs to be converted into corresponding mask
+		Arguments
+		---------
+		path : string
+			Path to JSON file which needs to be converted into corresponding mask
 
-	Returns
-	-------
-	output : 2D numpy array
-		Mask image
-	"""
+		Returns
+		-------
+		output : 2D numpy array
+			Mask image
+		"""
+		with open(path, 'r') as f:
+			regions_json = json.load(f)
+		regions = many([region['coordinates'] for region in regions_json])
+		_mask = truth.mask(dims=(512,512), stroke='white', fill='white', background='black')
+		return _mask
 
 
 	def mask_to_region(self, image):
-	"""
-	Converts mask image into corresponding regions list
+		"""
+		Converts mask image into corresponding regions list
 
-	Arguments
-	---------
-	image : 2D numpy array
-		Mask image
+		Arguments
+		---------
+		image : 2D numpy array
+			Mask image
 
-	Returns
-	-------
-	output : list
-		List to be written into JSON file 
-	"""
+		Returns
+		-------
+		output : list
+			List to be written into JSON file 
+		"""
