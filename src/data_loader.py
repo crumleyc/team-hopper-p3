@@ -5,16 +5,10 @@ import shutil
 import numpy as np
 import json
 import cv2
-<<<<<<< HEAD
-import matplotlib.pyplot as plt
-from scipy.misc import imread
-from glob import glob
-=======
 from regional import many
->>>>>>> a8f602fadf36f03791345f0ade428d1bae096b9e
 
 
-def region_to_mask(file):
+def region_to_mask(path):
 	"""
 	Converts the regions JSON file into mask
 
@@ -28,32 +22,8 @@ def region_to_mask(file):
 	output : 2D numpy array
 		Mask image
 	"""
-	files = sorted(glob(file'/images/*.tiff'))
-	imgs = array([imread(f) for f in files])
-	print(imgs.shape)
-    	dims = imgs.shape[1:]
-
-	"""
-	load the regions (training data only)
-	"""
-	with open(file'/regions/regions.json') as f:
-    		regions = json.load(f)
-
-	def tomask(coords):
-	    mask = zeros(dims)
-	    c,v = zip(*coords)
-	    mask[c,v] = 1
-	    return mask
-
-	masks = array([tomask(s['coordinates']) for s in regions])
-	mean_masks = np.mean(masks, axis=0)
-	imgs = np.reshape(imgs, imgs.shape+(1,))
-	mean_masks = mean_masks[...,np.newaxis]
-	mean_masks = mean_masks[np.newaxis,...]
-
-	dl = DataLoader()
-	dl.region_to_mask(file)
-
+	nl = NeuronLoader()
+	nl.region_to_mask(path)
 
 def mask_to_region(image):
 	"""
@@ -158,17 +128,10 @@ class NeuronLoader:
 				output = self.region_to_mask(regions)
 				cv2.imwrite(os.path.join(self.data, 'masks', train_file + '.png'), output)
 
-<<<<<<< HEAD
-
-	def region_to_mask(self, file):
-	"""
-	Converts region file into mask
-=======
 
 	def region_to_mask(self, path):
 		"""
-		Converts the regions JSON file into mask
->>>>>>> a8f602fadf36f03791345f0ade428d1bae096b9e
+		Converts region JSON file into mask
 
 		Arguments
 		---------
@@ -196,16 +159,8 @@ class NeuronLoader:
 		image : 2D numpy array
 			Mask image
 
-<<<<<<< HEAD
-	Returns
-	-------
-	output : list
-		List to be written into JSON file
-	"""
-=======
 		Returns
 		-------
 		output : list
 			List to be written into JSON file
 		"""
->>>>>>> a8f602fadf36f03791345f0ade428d1bae096b9e
