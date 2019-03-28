@@ -5,7 +5,13 @@ import shutil
 import numpy as np
 import json
 import cv2
+<<<<<<< HEAD
+import matplotlib.pyplot as plt
+from scipy.misc import imread
+from glob import glob
+=======
 from regional import many
+>>>>>>> a8f602fadf36f03791345f0ade428d1bae096b9e
 
 
 def region_to_mask(file):
@@ -22,8 +28,31 @@ def region_to_mask(file):
 	output : 2D numpy array
 		Mask image
 	"""
-	nl = NeuronLoader()
-	nl.region_to_mask(file)
+	files = sorted(glob(file'/images/*.tiff'))
+	imgs = array([imread(f) for f in files])
+	print(imgs.shape)
+    dims = imgs.shape[1:]
+
+	"""
+	load the regions (training data only)
+	"""
+	with open(file'/regions/regions.json') as f:
+    regions = json.load(f)
+
+	def tomask(coords):
+	    mask = zeros(dims)
+	    c,v = zip(*coords)
+	    mask[c,v] = 1
+	    return mask
+
+	masks = array([tomask(s['coordinates']) for s in regions])
+	mean_masks = np.mean(masks, axis=0)
+	imgs = np.reshape(imgs, imgs.shape+(1,))
+	mean_masks = mean_masks[...,np.newaxis]
+	mean_masks = mean_masks[np.newaxis,...]
+
+	dl = DataLoader()
+	dl.region_to_mask(file)
 
 
 def mask_to_region(image):
@@ -38,7 +67,7 @@ def mask_to_region(image):
 	Returns
 	-------
 	output : list
-		List to be written into JSON file 
+		List to be written into JSON file
 	"""
 	nl = NeuronLoader()
 	nl.mask_to_region(image)
@@ -82,18 +111,18 @@ class NeuronLoader:
 
 	def download(self):
 		"""
-		Downloads all zip files from Google Storage Bucket into data directory in 
+		Downloads all zip files from Google Storage Bucket into data directory in
 		Google Cloud Platform VM Instance
 		"""
 		subprocess.call('mkdir ' + self.data, shell=True)
 		# Downloading train/test files as per user's choice
 		zip_train_files = [train_file + '.zip' for train_file in self.train_files]
 		for zip_train_file in zip_train_files:
-			subprocess.call('/usr/bin/gsutil -m rsync -r ' + 
+			subprocess.call('/usr/bin/gsutil -m rsync -r ' +
 				os.path.join(self.url, zip_train_file) + ' ' + self.data, shell=True)
 		zip_test_files = [test_file + '.test.zip' for test_file in self.test_files]
 		for zip_test_file in zip_test_files:
-			subprocess.call('/usr/bin/gsutil -m rsync -r ' + 
+			subprocess.call('/usr/bin/gsutil -m rsync -r ' +
 				os.path.join(self.url, zip_test_file) + ' ' + self.data, shell=True)
 
 	def setup_data(self):
@@ -109,16 +138,16 @@ class NeuronLoader:
 			zip_ref.extractall(path)
 			zip_ref.close()
 			# Removing zip files from data directory
-			shutil.rmtree(os.path.join(path, zip_file))		
+			shutil.rmtree(os.path.join(path, zip_file))
 		# Move all train files into 'train' folder
 		os.mkdir(os.path.join(self.data, 'train'))
 		for train_file in self.train_files:
-			shutil.move(os.path.join(self.data, train_file), 
+			shutil.move(os.path.join(self.data, train_file),
 				os.path.join(self.data, 'train'))
 		# Move all test files into 'test' folder
 		os.mkdir(os.path.join(self.data, 'test'))
 		for test_file in self.test_files:
-			shutil.move(os.path.join(self.data, test_file), 
+			shutil.move(os.path.join(self.data, test_file),
 				os.path.join(self.data, 'test'))
 		# Convert all regions into masks and save in 'masks' folder
 		os.mkdir(os.path.join(self.data, 'masks'))
@@ -129,10 +158,17 @@ class NeuronLoader:
 				output = self.region_to_mask(regions)
 				cv2.imwrite(os.path.join(self.data, 'masks', train_file + '.png'), output)
 
-	
+<<<<<<< HEAD
+
+	def region_to_mask(self, file):
+	"""
+	Converts region file into mask
+=======
+
 	def region_to_mask(self, path):
 		"""
 		Converts the regions JSON file into mask
+>>>>>>> a8f602fadf36f03791345f0ade428d1bae096b9e
 
 		Arguments
 		---------
@@ -160,8 +196,16 @@ class NeuronLoader:
 		image : 2D numpy array
 			Mask image
 
+<<<<<<< HEAD
+	Returns
+	-------
+	output : list
+		List to be written into JSON file
+	"""
+=======
 		Returns
 		-------
 		output : list
-			List to be written into JSON file 
+			List to be written into JSON file
 		"""
+>>>>>>> a8f602fadf36f03791345f0ade428d1bae096b9e
