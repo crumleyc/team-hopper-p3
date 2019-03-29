@@ -9,7 +9,7 @@ them to assure that they are returning the proper output's type, size and
 '''
 
 
-''' the funtion to test'''
+''' the functions to test'''
 def transform_img(img, transformation):
     """
 	Applies different image preprocessing techniques
@@ -47,13 +47,49 @@ def transform_img(img, transformation):
         img = exposure.equalize_adapthist(img)
     return img
 
-'''testing the function'''
+
+def filter_img(img, _filter):
+    """
+	Applies different image preprocessing filters
+
+	Arguments
+	---------
+	img : 2D numpy array
+		The image to be transformed
+
+    _filter : str
+        The specific transofromation to be applied to the img. Gaussian and Median
+
+	Returns
+	-------
+	output : 2D numpy array
+		The filtered image
+	"""
+    if _filter == 'gaus':
+        img = filters.gaussian(img)
+
+    if _filter == 'median':
+        img = filters.median(img)
+    return img
+
+
+
+'''testing the functions'''
 def test_transform_img():
     arr = np.random.normal(loc=0, scale=3, size=(10, 5))
 
     transformations = ['mean','hist','adapthist','mean_hist','mean_adapt']
     for tansform in transformations:
-
         test_arr = transform_img(arr,transform)
+        assert instance(test_arr,arr)
+        assert size(test_arr) == size(arr)
+
+
+def test_filter_img():
+    arr = np.random.normal(loc=0, scale=3, size=(10, 5))
+
+    filters = ['median','gaus']
+    for filter in filters:
+        test_arr = filter_img(arr,filter)
         assert instance(test_arr,arr)
         assert size(test_arr) == size(arr)
