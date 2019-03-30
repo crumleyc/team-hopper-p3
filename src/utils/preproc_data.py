@@ -25,33 +25,37 @@ class Preprocessing:
         if(not os.path.isdir(data)):
             sys.exit('Data directory does not exist')
         # Directory where the new transformed data will be stored
-        new_dir = 'preproc_neuron_data'
+        new_dir = os.path.join(data,'preproc_neuron_data')
         os.mkdir(new_dir)
         # Only taking a certain number of images from each sample
         img_iterator = 100
+        #grabbing the testing and training data
+        sample_dirs = [ 'train', 'test']
 
-        sample_dirs = os.path.join(data, 'train')
-        for sample in os.listdir(sample_dirs):
-            # Sample should be neurfinder.00.00 and so on
-            # Grabbing a list of the images' name to then preprocess
-            img_dir = os.path.join(sample_dirs,sample)
-            img_names = os.listdir(img_dir)
+        for folder in sample_dirs:
+            folder_path = os.path.join(data,folder)
 
-            i=0
-            while (i < len(img_names)):                    
-                img = img_names[i]
-                img_path = os.path.join(img_dir,img)
-                img_array = external.tifffile.imread(img_path)
+            for sample in os.listdir(folder_path):
+                # Sample should be neurfinder.00.00 and so on
+                # Grabbing a list of the images' name to then preprocess
+                img_dir = os.path.join(folder_path,sample)
+                img_names = os.listdir(img_dir)
 
-                if (not transform == None):                      
-                    img_array = self.transform_img(img_array, transform)
+                i=0
+                while (i < len(img_names)):                    
+                    img = img_names[i]
+                    img_path = os.path.join(img_dir,img)
+                    img_array = external.tifffile.imread(img_path)
 
-                if (not _filter == None):
-                    img_array = self.filter_img(img_array, _filter)
+                    if (not transform == None):                      
+                        img_array = self.transform_img(img_array, transform)
 
-                new_img_path = os.path.join(new_dir,dir,sample,img)
-                external.tifffile.imsave(new_img_path,img_array)  
-                i+=img_iterator
+                    if (not _filter == None):
+                        img_array = self.filter_img(img_array, _filter)
+
+                    new_img_path = os.path.join(new_dir,folder,sample,img)
+                    external.tifffile.imsave(new_img_path,img_array)  
+                    i+=img_iterator
 
 
     def transform_img(self, img, transformation):
@@ -64,7 +68,8 @@ class Preprocessing:
     		The image to be transformed
 
         transformation : str
-            The specific transofromation to be applied to the img. Mean centering, histogram equalization, adapt histogram equalization, or a combination of them.
+            The specific transofromation to be applied to the img.
+             Mean centering, histogram equalization, adapt histogram equalization, or a combination of them.
 
     	Returns
     	-------
