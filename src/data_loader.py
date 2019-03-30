@@ -6,7 +6,8 @@ import numpy as np
 import json
 import cv2
 from regional import many
-
+import site
+site.addsitedir(os.path.dirname(os.path.realpath(__file__)))
 
 def region_to_mask(path):
 	"""
@@ -70,12 +71,15 @@ class NeuronLoader:
 		self.train_opts = train_opts
 		self.test_opts = test_opts
 		self.train_files = ['neurofinder.' + train_opt  for train_opt in self.train_opts]
-		self.test_files = ['neurofinder.' + test_opt  for test_opt in self.test_opts]
+		self.test_files = ['neurofinder.' + test_opt + '.test' for test_opt in self.test_opts]
 		if os.path.isdir(self.data):
-			if 'train' in os.listdir(self.data):
-				self.setup_data()
+			print("NeuroFinder Dataset has already been downloaded...")
+			print("Setting up 'neuron_dataset' folder...")
+			self.setup_data()
 		else:
+			print('Downloading NeuroFinder Dataset...')
 			self.download()
+			print("Setting up 'neuron_dataset' folder...")
 			self.setup_data()
 
 
@@ -88,11 +92,11 @@ class NeuronLoader:
 		# Downloading train/test files as per user's choice
 		zip_train_files = [train_file + '.zip' for train_file in self.train_files]
 		for zip_train_file in zip_train_files:
-			subprocess.call('/usr/bin/gsutil -m rsync -r ' +
+			subprocess.call('/usr/bin/gsutil -m cp -r ' +
 				os.path.join(self.url, zip_train_file) + ' ' + self.data, shell=True)
 		zip_test_files = [test_file + '.test.zip' for test_file in self.test_files]
 		for zip_test_file in zip_test_files:
-			subprocess.call('/usr/bin/gsutil -m rsync -r ' +
+			subprocess.call('/usr/bin/gsutil -m cp -r ' +
 				os.path.join(self.url, zip_test_file) + ' ' + self.data, shell=True)
 
 	def setup_data(self):
@@ -104,49 +108,82 @@ class NeuronLoader:
 		zip_files = [zip_file for zip_file in os.listdir(path) if zip_file.endswith('.zip')]
 		# Unzipping all train/test data directories
 		for zip_file in zip_files:
-			zip_ref = zipfile.ZipFile(os.path.join(path, zip_file), 'r')
-			zip_ref.extractall(path)
-			zip_ref.close()
+			print('Unziping ' + zip_file + '...')
+			zip_ref = zipfile.ZipFile(os.path.join(path, zip_file)).extractall(path)
 			# Removing zip files from data directory
-			shutil.rmtree(os.path.join(path, zip_file))
+			os.remove(os.path.join(path, zip_file))
 		# Move all train files into 'train' folder
-		os.mkdir(os.path.join(self.data, 'train'))
-		for train_file in self.train_files:
-			shutil.move(os.path.join(self.data, train_file),
-				os.path.join(self.data, 'train'))
+		if 'train' in os.listdir(self.data): # If 'train' folder exists
+			if len(os.listdir(os.path.join(self.data, 'train'))) == 0: # If 'train' folder is empty
+				for train_file in self.train_files:
+					shutil.move(os.path.join(self.data, train_file), 
+						os.path.join(self.data, 'train'))
+				print("'train' folder has been successfully created!")
+			else:
+				print("'train' folder already exists. Moving ahead...")
+		else: # Creating 'train' folder
+			os.mkdir(os.path.join(self.data, 'train'))
+			for train_file in self.train_files:
+				shutil.move(os.path.join(self.data, train_file), 
+					os.path.join(self.data, 'train'))
+			print("'train' folder has been successfully created!")
+
 		# Move all test files into 'test' folder
-		os.mkdir(os.path.join(self.data, 'test'))
-		for test_file in self.test_files:
-			shutil.move(os.path.join(self.data, test_file),
-				os.path.join(self.data, 'test'))
+		if 'test' in os.listdir(self.data): # If 'test' folder exists
+			if len(os.listdir(os.path.join(self.data, 'test'))) == 0: # If 'test' folder is empty
+				for test_file in self.test_files:
+					shutil.move(os.path.join(self.data, test_file), 
+						os.path.join(self.data, 'test'))
+				print("'test' folder has been successfully created!")
+			else:
+				print("'test' folder already exists. Moving ahead...")
+		else: # Creating 'test' folder
+			os.mkdir(os.path.join(self.data, 'test'))
+			for test_file in self.test_files:
+				shutil.move(os.path.join(self.data, test_file), 
+					os.path.join(self.data, 'test'))
+			print("'test' folder has been successfully created!")
+
 		# Convert all regions into masks and save in 'masks' folder
-		os.mkdir(os.path.join(self.data, 'masks'))
-		for train_file in self.train_files:
-			regions_path = os.path.join(self.data, train_file, 'regions/regions.json')
-			with open(regions_path, 'r') as json_file:
-				regions = json.load(json_file)
-				output = self.region_to_mask(regions)
-				cv2.imwrite(os.path.join(self.data, 'masks', train_file + '.png'), output)
+		if 'masks' in os.listdir(self.data):
+			if len(os.listdir(os.path.join(self.data, 'masks'))) == 0:
+				for train_file in self.train_files:
+					regions_path = os.path.join(self.data, 'train', train_file, 'regions/regions.json')
+					with open(regions_path, 'r') as json_file:
+						regions = json.load(json_file)
+						output = self.region_to_mask(regions)
+						cv2.imwrite(os.path.join(self.data, 'masks', train_file + '.png'), output)
+				print("'masks' folder has been successfully created!")			
+			else:
+				print("'masks' folder already exists. Moving ahead...")
+		else:
+			os.mkdir(os.path.join(self.data, 'masks'))
+			for train_file in self.train_files:
+				regions_path = os.path.join(self.data, 'train', train_file, 'regions/regions.json')
+				with open(regions_path, 'r') as json_file:
+					regions = json.load(json_file)
+					output = self.region_to_mask(regions)
+					cv2.imwrite(os.path.join(self.data, 'masks', train_file + '.png'), output)
+			print("'masks' folder has been successfully created!")
 
 
-	def region_to_mask(self, path):
+	def region_to_mask(self, regions_json):
 		"""
 		Converts region JSON file into mask
 
 		Arguments
 		---------
-		path : string
-			Path to JSON file which needs to be converted into corresponding mask
+		regions_json : json file
+			JSON file which needs to be converted into corresponding mask
 
 		Returns
 		-------
 		output : 2D numpy array
 			Mask image
 		"""
-		with open(path, 'r') as f:
-			regions_json = json.load(f)
 		regions = many([region['coordinates'] for region in regions_json])
-		_mask = truth.mask(dims=(512,512), stroke='white', fill='white', background='black')
+		_mask = regions.mask(dims=(512,512), stroke='white', fill='white', background='black')
+		
 		return _mask
 
 
