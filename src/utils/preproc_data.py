@@ -2,134 +2,119 @@ import numpy as np
 from skimage import exposure
 from skimage import external
 from skimage import filters
-
 import argparse
 import os 
 import sys
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--transform',type=str,help='Select the image transformation',
-                    choices=['mean','hist','adapthist','mean_hist','mean_adapt'])
-parser.add_argument('--filter',type=str,help='Select the filter to reduce the noise in the imgages',
-                    choices=['gaus','median'])
-args = parser.parse_args()
+class Preprocessing:
+    def __init__(self, data, transform, _filter):
+        """
+        Performs preprocessing techniques on the images dataset.
+
+        Arguments:
+        ----------
+            data: str
+                Directory where the training and testing data are present
+            transform: str
+                Transformation to perform on the image
+            _filter: str
+                Filtering technique to perform on the image
+        """
+        # Checking to make sure the neuron data directory is given correctly
+        if(not os.path.isdir(data)):
+            sys.exit('Data directory does not exist')
+        # Directory where the new transformed data will be stored
+        new_dir = os.path.join(data,'preproc_neuron_data')
+        os.mkdir(new_dir)
+        # Only taking a certain number of images from each sample
+        img_iterator = 100
+        #grabbing the testing and training data
+        sample_dirs = [ 'train', 'test']
+
+        for folder in sample_dirs:
+            folder_path = os.path.join(data,folder)
+
+            for sample in os.listdir(folder_path):
+                # Sample should be neurfinder.00.00 and so on
+                # Grabbing a list of the images' name to then preprocess
+                img_dir = os.path.join(folder_path,sample)
+                img_names = os.listdir(img_dir)
+
+                i=0
+                while (i < len(img_names)):                    
+                    img = img_names[i]
+                    img_path = os.path.join(img_dir,img)
+                    img_array = external.tifffile.imread(img_path)
+
+                    if (not transform == None):                      
+                        img_array = self.transform_img(img_array, transform)
+
+                    if (not _filter == None):
+                        img_array = self.filter_img(img_array, _filter)
+
+                    new_img_path = os.path.join(new_dir,folder,sample,img)
+                    external.tifffile.imsave(new_img_path,img_array)  
+                    i+=img_iterator
 
 
-#The directory where the training and testing data are
-data = 'neuron_data'
+    def transform_img(self, img, transformation):
+        """
+    	Applies different image preprocessing techniques
 
-#Checking to make sure the neuron data directory is given correctly
-if(not os.path.isdir(data)):
-    sys.exit('Data directory does not exist')
+    	Arguments
+    	---------
+    	img : 2D numpy array
+    		The image to be transformed
 
+        transformation : str
+            The specific transofromation to be applied to the img.
+             Mean centering, histogram equalization, adapt histogram equalization, or a combination of them.
 
-#where the new transformed data will be stored
-new_dir = 'preprec_neuron_data'
-os.mkdir(new_dir)
+    	Returns
+    	-------
+    	output : 2D numpy array 
+    		The transformed image
+    	"""
+        if transformation == 'mean':
+            img = img.mean - img
 
-#Only taking a certain number of images from each sample
-img_iterator = 100
+        if transformation == 'hist':
+            img = exposure.equalize_hist(img)
 
+        if transformation == 'adapthist':
+            img = exposure.equalize_adapthist(img)
 
+        if  transformation == 'mean_hist':
+            img = img.mean - img
+            img = exposure.equalize_hist(img)
 
-for dir in os.listdir(data):
-    # dir should be train or test
-    
-    sample_dirs = os.path.join(data,dir)
-
-    
-    for sample in os.listdir(sample_dirs):
-        #sample should be neurfinder.00.00 and so on
-
-        #Grabbing a list of the images' name to then preprocess
-        img_dir = os.path.join(sample_dirs,sample)
-        img_names = os.listdir(img_dir)
-
-        i=0
-        while (i < len(img_names)):
-            
-            img = img_names[i]
-            img_path = os.path.join(img_dir,img)
-
-            img_array = external.tifffile.imread(img_path)
-
-            if (not args.transform == None):
-                
-                img_array = transform_img(img_array,args.transform)
-
-            if (not args.filter == None):
-
-                img_array = filter_img(img_array, args.filter)
-
-            new_img_path = os.path.join(new_dir,dir,sample,img)
-            external.tifffile.imsave(new_img_path,img_array)
-
-            
-            i+=img_iterator
+        if transformation == 'mean_adapt':
+            img = img.mean - img
+            img = exposure.equalize_adapthist(img)
+        return img
 
 
-def transform_img(img,transformation):
-    """
-	Applies different image preprocessing techniques
+    def filter_img(self, img, _filter):
+        """
+    	Applies different image preprocessing filters
 
-	Arguments
-	---------
-	img : 2D numpy array
-		The image to be transformed
+    	Arguments
+    	---------
+    	img : 2D numpy array
+    		The image to be transformed
 
-    transformation : str
-        The specific transofromation to be applied to the img. Mean centering, histogram equalization, adapt histogram equalization, or a combination of them.
+        _filter : str
+            The specific transofromation to be applied to the img. Gaussian and Median
 
-	Returns
-	-------
-	output : 2D numpy array 
-		The transformed image
-	"""
-    if transformation == 'mean':
-        img = img.mean - img
-
-    if transformation == 'hist':
-        img = exposure.equalize_hist(img)
-
-    if transformation == 'adapthist':
-        img = exposure.equalize_adapthist(img)
-
-    if  transformation == 'mean_hist':
-        img = img.mean - img
-        img = exposure.equalize_hist(img)
-
-    if transformation == 'mean_adapt':
-        img = img.mean - img
-        img = exposure.equalize_adapthist(img)
-
-    return img
-
-def filter_img(img, filter):
-    """
-	Applies different image preprocessing filters
-
-	Arguments
-	---------
-	img : 2D numpy array
-		The image to be transformed
-
-    filter : str
-        The specific transofromation to be applied to the img. Gaussian and Median
-
-	Returns
-	-------
-	output : 2D numpy array 
-		The filtered image
-	"""
-    
-    if filter == 'gaus':
-        img = filters.gaussian(img)
-    
-    if filter == 'median':
-        img = filters.median(img)
-
-    return img
-
-
-
+    	Returns
+    	-------
+    	output : 2D numpy array 
+    		The filtered image
+    	"""
+        if _filter == 'gaus':
+            img = filters.gaussian(img)
+        
+        if _filter == 'median':
+            img = filters.median(img)
+        return img
