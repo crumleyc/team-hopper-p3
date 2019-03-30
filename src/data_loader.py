@@ -145,13 +145,13 @@ class NeuronLoader:
 		"""
 
 		with open(path) as f:
-    		regions = json.load(f)
+    			regions = json.load(f)
 
 		def tomask(coords):
-    		mask = zeros(dims)
-    		c,v = zip(*coords)
-    		mask[c,v] = 1
-    		return mask
+			mask = zeros(dims)
+			c,v = zip(*coords)
+			mask[c,v] = 1
+			return mask
 
 		masks = array([tomask(s['coordinates']) for s in regions])
 		print(masks.shape)
