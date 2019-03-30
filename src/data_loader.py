@@ -51,7 +51,11 @@ class NeuronLoader:
 	3. Converts 'regions'  into masks and vice-versa
 	4. Saves masks of 'train' files in 'masks' subdirectory
 	"""
-	def __init__(self, gs_url, data, train_opts, test_opts):
+	def __init__(self, gs_url='gs://uga-dsp/project3', data='neuron_dataset', 
+		train_opts=['00.00', '00.01', '00.02', '00.03', '00.04', '00.05', '00.06',
+		'00.07', '00.08', '00.09', '00.10', '00.11', '01.00', '01.01', '02.00',
+		'02.01', '03.00', '04.00', '04.01'], test_opts=['00.00', '00.01', '01.00', 
+		'01.01', '02.00', '02.01', '03.00', '04.00', '04.01']):
 		"""
 		Initializes NeuronLoader class
 

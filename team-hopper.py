@@ -1,4 +1,5 @@
 import argparse
+import subprocess
 from src.data_loader import NeuronLoader
 from src.utils.preproc_data import Preprocessing
 from src.nmf import nmf
@@ -23,9 +24,11 @@ parser.add_argument('--test_opts', dest='test_opts', type=str, default='all',
 	'04.00', '04.01', 'all'], help='test data to be downloaded - part/all')
 parser.add_argument('--transform', dest = 'transform', type=str, default='None', 
 	choices=['mean', 'hist', 'adapthist', 'mean_hist', 'mean_adapt', 'None'],
-	help='Select the image transformation',)
+	help='Select the image transformation')
 parser.add_argument('--filter', dest='filter', type=str, default='None',
 	choices = ['gaus', 'median', 'None'])
+parser.add_argument('--test', dest='test', type=bool, default=False,
+	choices=[True, False], help='to run the test suite')
 
 args = parser.parse_args()
 url = args.url
@@ -33,7 +36,8 @@ model = args.model
 data = args.data
 preprocess = args.preprocess
 transform = args.transform
-_filter = args.filter 
+_filter = args.filter
+test = args.test
 
 if args.train_opts != 'all':
 	train_opts = args.train_opts.split()
@@ -50,18 +54,21 @@ else:
 
 nl = NeuronLoader(url, data, train_opts, test_opts)
 
-if model == 'nmf':
-	if preprocess :
-		print('Preprocessing techniques have not been tested for NMF.')
-		print('Proceeding with regular NMF technique.')
-		nmf(nl.test_files)
-	else:
-		nmf(nl.test_files)
-elif model == 'unet':
-	if preprocess :
-		pp = Preprocessing(nl.data, transform, _filter)
-		# Execute UNet here	
-		pass
-	else:
-		# Execute UNet here
-		pass
+if test:
+	subprocess.call('python -m pytest', shell=True)
+else:
+	if model == 'nmf':
+		if preprocess :
+			print('Preprocessing techniques have not been tested for NMF.')
+			print('Proceeding with regular NMF technique.')
+			nmf(nl.test_files)
+		else:
+			nmf(nl.test_files)
+	elif model == 'unet':
+		if preprocess :
+			pp = Preprocessing(nl.data, transform, _filter)
+			# Execute UNet here	
+			pass
+		else:
+			# Execute UNet here
+			pass
