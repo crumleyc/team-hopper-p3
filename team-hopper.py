@@ -1,6 +1,7 @@
 import argparse
 from src.data_loader import NeuronLoader
 from src.utils.preproc_data import Preprocessing
+from src.nmf import nmf
 
 
 parser = argparse.ArgumentParser(description='Team Hopper : Neuron Finder')
@@ -41,7 +42,7 @@ else:
 	'00.07', '00.08', '00.09', '00.10', '00.11', '01.00', '01.01', '02.00',
 	'02.01', '03.00', '04.00', '04.01']
 
-if args.test_opts != 'll':
+if args.test_opts != 'all':
 	test_opts = args.test_opts.split()
 else:
 	test_opts = ['00.00', '00.01', '01.00', '01.01', '02.00', '02.01', '03.00',
@@ -53,10 +54,9 @@ if model == 'nmf':
 	if preprocess :
 		print('Preprocessing techniques have not been tested for NMF.')
 		print('Proceeding with regular NMF technique.')
-		# Execute NMF function here
+		nmf(nl.test_files)
 	else:
-		pass
-		# Execute NMF function here
+		nmf(nl.test_files)
 elif model == 'unet':
 	if preprocess :
 		pp = Preprocessing(nl.data, transform, _filter)
