@@ -1,10 +1,8 @@
-from ..nmf import nmf
-from ..data_loader import NeuronLoader
+from src.nmf import nmf
+from src.data_loader import NeuronLoader
 import json
 
-
 nl = NeuronLoader()
-
 
 def test_nmf():
 	# Running NMF algorithm on all test sets
