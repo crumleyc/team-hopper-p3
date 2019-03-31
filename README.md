@@ -20,7 +20,7 @@
   Upon running the command in the ‘Usage’ section, the dataset will be downloaded from the Google Storage bucket link carrying the Neuron dataset, and the output `submission.json` files will be generated in the `/results` directory.
 
   ## Contributors
-* See [Contributors](CONTRIBUTIONS.md) file for more details.
+* See [Contributors](CONTRIBUTORS.md) file for more details.
 
 ## License
 This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for more details.
