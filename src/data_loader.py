@@ -98,7 +98,8 @@ class NeuronLoader:
 		for zip_train_file in zip_train_files:
 			subprocess.call('/usr/bin/gsutil -m cp -r ' +
 				os.path.join(self.url, zip_train_file) + ' ' + self.data, shell=True)
-		zip_test_files = [test_file + '.test.zip' for test_file in self.test_files]
+		zip_test_files = [test_file + '.zip' for test_file in self.test_files]
+		print(zip_test_files)
 		for zip_test_file in zip_test_files:
 			subprocess.call('/usr/bin/gsutil -m cp -r ' +
 				os.path.join(self.url, zip_test_file) + ' ' + self.data, shell=True)
