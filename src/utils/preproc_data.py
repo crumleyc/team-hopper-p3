@@ -3,12 +3,12 @@ from skimage import exposure
 from skimage import external
 from skimage import filters
 import argparse
-import os 
+import os
 import sys
 
 
 class Preprocessing:
-    def __init__(self, data, transform, _filter):
+    def __init__(self, data, data_storage, transform, _filter):
         """
         Performs preprocessing techniques on the images dataset.
 
@@ -25,7 +25,7 @@ class Preprocessing:
         if(not os.path.isdir(data)):
             sys.exit('Data directory does not exist')
         # Directory where the new transformed data will be stored
-        new_dir = os.path.join(data,'preproc_neuron_data')
+        new_dir = os.path.join(data, data_storage)
         os.mkdir(new_dir)
         # Only taking a certain number of images from each sample
         img_iterator = 100
@@ -42,19 +42,19 @@ class Preprocessing:
                 img_names = os.listdir(img_dir)
 
                 i=0
-                while (i < len(img_names)):                    
+                while (i < len(img_names)):
                     img = img_names[i]
                     img_path = os.path.join(img_dir,img)
                     img_array = external.tifffile.imread(img_path)
 
-                    if (not transform == None):                      
+                    if (not transform == None):
                         img_array = self.transform_img(img_array, transform)
 
                     if (not _filter == None):
                         img_array = self.filter_img(img_array, _filter)
 
                     new_img_path = os.path.join(new_dir,folder,sample,img)
-                    external.tifffile.imsave(new_img_path,img_array)  
+                    external.tifffile.imsave(new_img_path,img_array)
                     i+=img_iterator
 
 
@@ -73,7 +73,7 @@ class Preprocessing:
 
     	Returns
     	-------
-    	output : 2D numpy array 
+    	output : 2D numpy array
     		The transformed image
     	"""
         if transformation == 'mean':
@@ -109,12 +109,12 @@ class Preprocessing:
 
     	Returns
     	-------
-    	output : 2D numpy array 
+    	output : 2D numpy array
     		The filtered image
     	"""
         if _filter == 'gaus':
             img = filters.gaussian(img)
-        
+
         if _filter == 'median':
             img = filters.median(img)
         return img
