@@ -1,11 +1,11 @@
 import os
 import json
 import thunder as td
-from extraction import NMF
+from factorization import PCA
 
-def nmf():
+def pca():
     """
-    Uses the NMF algorithm to segment out regions and store coordinates in
+    Uses the PCA algorithm to segment out regions and store coordinates in
     a JSON file
     Arguments
     ----------
@@ -19,12 +19,12 @@ def nmf():
     for dataset in datasets:
         print('Loading dataset: %s ' %dataset)
 	dataset_path = 'neurofinder.' + dataset
-        path = os.path.join('/home/aashish_yadavally1995/neuron_dataset/test', dataset_path, 'images')
+        path = os.path.join('~/neuron_dataset/test', dataset_path, 'images')
         # Getting the images data from path
         data = td.images.fromtif(path, ext='tiff')
-        nmf = NMF(k=10, percentile=99, max_iter=50, overlap=0.1)
+        pca = PCA(k=10, percentile=99, max_iter=50, overlap=0.1)
         # Fitting on the given dataset
-        model = nmf.fit(data, chunk_size=(50,50), padding=(25,25))
+        model = pca.fit(data, chunk_size=(50,50), padding=(25,25))
         merged = model.merge(0.1)
         # Storing found regions
         regions = [{'coordinates': region.coordinates.tolist()} for region in merged.regions]
@@ -33,5 +33,3 @@ def nmf():
     # Writing the results to submission.json
     with open('submission.json', 'w') as f:
         f.write(json.dumps(submission))
-
-nmf()
