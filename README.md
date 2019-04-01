@@ -1,6 +1,8 @@
 # CSCI 8360 Data Science Practicum : Project NeuroFinder
 
-
+  ## Goal
+  To develop a segmentation pipeline that identifies as many neurons as possible, as accurately as possible.
+  
   ## Getting Started
   These instructions describe the prerequisites and steps to get the project up and running.
 
@@ -15,7 +17,12 @@
 
   ### Usage
   To run the code and generate output prediction masks in the `/results` directory, the user can navigate to the folder containing the file 'team-hopper.py', and run it using the command: `python team-hopper.py --options`. The user can get a description of the options by using the command `python team-hopper.py -help`.
-
+  
+  ### Dataset
+  The dataset was created by (codeneuro.org)[http://codeneuro.org/]. 
+  ![alt text](http://url/to/img.png) ![alt text](http://url/to/img.png)
+  The image on the left is a training example and on the right is the mask with the regions circled.
+  
   ### Output
   Upon running the command in the ‘Usage’ section, the dataset will be downloaded from the Google Storage bucket link carrying the Neuron dataset, and the output `submission.json` files will be generated in the `/results` directory.
 
