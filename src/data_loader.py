@@ -41,11 +41,32 @@ def mask_to_region(image):
 
 	Returns
 	-------
-	output : list
-		List to be written into JSON file
+	regions : list
+		"regions" for the dataset that the mask belongs to
 	"""
 	nl = NeuronLoader()
 	nl.mask_to_region(image)
+
+
+def get_json_output(self, datasets, dataset_regions):
+	"""
+	Gets output in the required format for JSON file
+
+	Arguments
+	---------
+	datasets : list
+		List of datasets which need to be written into the JSON file
+
+	dataset_regions : list
+		List of "dataset_regions" for each dataset in the datasets list
+
+	Returns
+	-------
+	output : list
+		List of dictionaries of datasets, which can be written into JSON file
+	"""
+	nl = NeuroLoader()
+	nl.save_to_json(datasets, dataset_regions)
 
 
 class NeuronLoader:
@@ -248,3 +269,29 @@ class NeuronLoader:
 			remove_interiors(L, region["coordinates"])
 		
 		return regions
+
+
+	def get_json_output(self, datasets, dataset_regions):
+		"""
+		Gets output in the required format for JSON file
+
+		Arguments
+		---------
+		datasets : list
+			List of datasets which need to be written into the JSON file
+
+		dataset_regions : list
+			List of "dataset_regions" for each dataset in the datasets list
+
+		Returns
+		-------
+		output : list
+			List of dictionaries of datasets, which can be written into JSON file
+		"""
+		if len(datasets) == len(dataset_regions):
+			n = len(datasets)
+			output = [{"dataset": dataset[i], "regions": dataset_regions[i]} for i in range(n)]
+		else:
+			print("Compatibility Error: Number of datasets and dataset_regions do not match!")
+	
+		return output
