@@ -5,9 +5,13 @@ import shutil
 import numpy as np
 import json
 import cv2
+import pickle
+from pymatbridge import Matlab
+from skimage import color
 from regional import many
 import site
 site.addsitedir(os.path.dirname(os.path.realpath(__file__)))
+
 
 def region_to_mask(path):
 	"""
@@ -28,12 +32,12 @@ def region_to_mask(path):
 
 def mask_to_region(image):
 	"""
-	Converts mask image into corresponding regions JSON file
+	Converts mask image into corresponding regions list
 
 	Arguments
 	---------
-	image : 2D numpy array
-		Mask image
+	path : string
+		Path to mask image
 
 	Returns
 	-------
@@ -189,20 +193,58 @@ class NeuronLoader:
 		regions = many([region['coordinates'] for region in regions_json])
 		_mask = regions.mask(dims=(512,512), stroke='white', fill='white', background='black')
 		
-		return _mask
+		return color.rgb2gray(_mask)
 
 
-	def mask_to_region(self, image):
+	def mask_to_region(self, path):
 		"""
 		Converts mask image into corresponding regions list
 
 		Arguments
 		---------
-		image : 2D numpy array
-			Mask image
+		path : string
+			Path to mask image
 
 		Returns
 		-------
-		output : list
-			List to be written into JSON file
+		regions : list
+			"regions" for the dataset that the mask belongs to
 		"""
+
+		def remove_interiors(L, region):
+			"""
+			Removes interior pixels in neuron regions
+
+			Arguments
+			---------
+			L : 2D numpy array
+				Matrix containing labels for each neuron
+			region : list
+				List of all pixels in a neuron label
+			"""
+			for pixel in region:
+				# Creating grid around pixel
+				grid = L[pixel[0]-1:pixel[0]+2, pixel[1]-1:pixel[1]+2]
+				# Removing pixels which are surrounded by similar values
+				if np.unique(grid).size == 1:
+					region.remove(pixel)
+			return region
+
+		# Initializes Matlab to get labels for neurons using bwboundaries() method
+		cwd = os.getcwd()
+		matlab_file_path = os.path.join(cwd,'utils', 'get_region_boundaries.m')
+		mlab = Matlab()
+		mlab.start()
+		matlab_result = mlab.run_func(matlab_file_path, {'arg1': path})
+		mlab.stop()
+		# `L` is 2D array with each neuron carrying a label 1 -> n 
+		L = matlab_result['result']
+		n = int(L.max()) # Number of neurons
+		# Getting coordinates of pixels of neuron regions
+		# This includes interior pixels as well
+		regions = [{"coordinates": list(zip(*np.where(L == float(i))))} for i in range(1, n)]
+		# Removing interior pixels in neuron regions
+		for region in regions:
+			remove_interiors(L, region["coordinates"])
+		
+		return regions
