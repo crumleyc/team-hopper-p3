@@ -1,0 +1,26 @@
+name: hopper
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core stack
+  - python>=3.6
+  - numpy
+  - scipy
+  - matplotlib
+  - scikit-image
+  - keras
+  - pandas
+  - scikit-learn
+  - pip
+  - pip:
+    - thunder-extraction
+    - pymatbridge
+    - opencv-python
+  - requests
+
+  # Testing
+  - pytest
+
+  # Dev tooling
+  - ipython
