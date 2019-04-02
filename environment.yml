@@ -12,11 +12,13 @@ dependencies:
   - keras
   - pandas
   - scikit-learn
+  - opencv
   - pip
   - pip:
+    - zmq
+    - regional
     - thunder-extraction
     - pymatbridge
-    - opencv-python
   - requests
 
   # Testing
