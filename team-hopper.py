@@ -1,12 +1,23 @@
+"""						
+This script is the starter script that the user needs to run, which will set up 
+the dataset, call the corresponding models that the user chooses, and write the
+results into the 'results' directory.
+
+---------------------------
+Author : Aashish Yadavally
+"""
+
+
 import argparse
 import subprocess
 from src.data_loader import NeuronLoader
 from src.utils.preproc_data import Preprocessing
 from src.nmf import nmf
+from src.sparsepca import sparse_pca
 
 
 parser = argparse.ArgumentParser(description='Team Hopper : Neuron Finder')
-parser.add_argument('--model', dest='model', type=str, choices=['nmf', 'unet'],
+parser.add_argument('--model', dest='model', type=str, choices=['nmf', 'unet', 'sparsepca'],
 	default='nmf', help='model to find neurons')
 parser.add_argument('--url', dest='url',type=str, default='gs://uga-dsp/project3',
 	help='google storage bucket link')
@@ -55,15 +66,14 @@ else:
 nl = NeuronLoader(url, data, train_opts, test_opts)
 
 if test:
+	print('Beginning Test Suite...')
 	subprocess.call('python -m pytest', shell=True)
 else:
 	if model == 'nmf':
 		if preprocess :
-			print('Preprocessing techniques have not been tested for NMF.')
+			print('Preprocessing techniques have not been tested for, with NMF.')
 			print('Proceeding with regular NMF technique.')
-			nmf(nl.test_files)
-		else:
-			nmf(nl.test_files)
+		nmf(nl.test_files)
 	elif model == 'unet':
 		if preprocess :
 			'''Will get an error unless you add the name of the subdirectory'''
@@ -73,3 +83,8 @@ else:
 		else:
 			# Execute UNet here
 			pass
+	elif model == 'sparsepca':
+		if preprocess :
+			print('Preprocessing techniques have not been tested for, with Sparse PCA.')
+			print('Proceeding with regular Sparse PCA technique.')
+		sparsepca(nl.test_files)
