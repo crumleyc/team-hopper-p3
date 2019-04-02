@@ -1,3 +1,16 @@
+					
+"""						
+This script downloads the dataset from the Google Storage bucket, sets it	
+up for further access, and generates a few class variables which can be 
+used elsewhere, so as to avoid multiple image reads; implements methods to
+convert regions to masks, masks back to regions, and to modify the output 
+regions list into the format required for the JSON file.
+
+---------------------------
+Author : Aashish Yadavally
+"""
+
+
 import os
 import subprocess
 import zipfile
@@ -178,22 +191,26 @@ class NeuronLoader:
 		if 'masks' in os.listdir(self.data):
 			if len(os.listdir(os.path.join(self.data, 'masks'))) == 0:
 				for train_file in self.train_files:
-					regions_path = os.path.join(self.data, 'train', train_file, 'regions/regions.json')
+					regions_path = os.path.join(self.data, 'train', train_file, 
+						'regions/regions.json')
 					with open(regions_path, 'r') as json_file:
 						regions = json.load(json_file)
 						output = self.region_to_mask(regions)
-						cv2.imwrite(os.path.join(self.data, 'masks', train_file + '.png'), output)
+						cv2.imwrite(os.path.join(self.data, 'masks', 
+							train_file + '.png'), output)
 				print("'masks' folder has been successfully created!")			
 			else:
 				print("'masks' folder already exists. Moving ahead...")
 		else:
 			os.mkdir(os.path.join(self.data, 'masks'))
 			for train_file in self.train_files:
-				regions_path = os.path.join(self.data, 'train', train_file, 'regions/regions.json')
+				regions_path = os.path.join(self.data, 'train', train_file, 
+					'regions/regions.json')
 				with open(regions_path, 'r') as json_file:
 					regions = json.load(json_file)
 					output = self.region_to_mask(regions)
-					cv2.imwrite(os.path.join(self.data, 'masks', train_file + '.png'), output)
+					cv2.imwrite(os.path.join(self.data, 'masks', 
+						train_file + '.png'), output)
 			print("'masks' folder has been successfully created!")
 
 
@@ -212,7 +229,8 @@ class NeuronLoader:
 			Mask image
 		"""
 		regions = many([region['coordinates'] for region in regions_json])
-		_mask = regions.mask(dims=(512,512), stroke='white', fill='white', background='black')
+		_mask = regions.mask(dims=(512,512), stroke='white', fill='white', 
+			background='black')
 		
 		return color.rgb2gray(_mask)
 
