@@ -66,7 +66,7 @@ def get_json_output(self, datasets, dataset_regions):
 		List of dictionaries of datasets, which can be written into JSON file
 	"""
 	nl = NeuroLoader()
-	nl.save_to_json(datasets, dataset_regions)
+	nl.get_json_output(datasets, dataset_regions)
 
 
 class NeuronLoader:
