@@ -14,15 +14,15 @@ parser.add_argument('--data', dest='data', type=str, default='neuron_dataset',
 	help='name of folder to download neuron dataset into')
 parser.add_argument('--preprocess', dest = 'preprocess', type=bool, default=False,
 	choices=[True, False], help='choice to work with preprocessed data in unet')
-parser.add_argument('--train_opts', dest='train_opts', type=str, default='all', 
-	choices=['00.00', '00.01', '00.02', '00.03', '00.04', '00.05', '00.06', 
-	'00.07', '00.08', '00.09', '00.10', '00.11', '01.00', '01.01', '02.00', 
-	'02.01', '03.00', '04.00', '04.01', 'all'], 
+parser.add_argument('--train_opts', dest='train_opts', type=str, default='all',
+	choices=['00.00', '00.01', '00.02', '00.03', '00.04', '00.05', '00.06',
+	'00.07', '00.08', '00.09', '00.10', '00.11', '01.00', '01.01', '02.00',
+	'02.01', '03.00', '04.00', '04.01', 'all'],
 	help='training data to be downloaded - part/all')
-parser.add_argument('--test_opts', dest='test_opts', type=str, default='all', 
+parser.add_argument('--test_opts', dest='test_opts', type=str, default='all',
 	choices=['00.00', '00.01', '01.00', '01.01', '02.00', '02.01', '03.00',
 	'04.00', '04.01', 'all'], help='test data to be downloaded - part/all')
-parser.add_argument('--transform', dest = 'transform', type=str, default='None', 
+parser.add_argument('--transform', dest = 'transform', type=str, default='None',
 	choices=['mean', 'hist', 'adapthist', 'mean_hist', 'mean_adapt', 'None'],
 	help='Select the image transformation')
 parser.add_argument('--filter', dest='filter', type=str, default='None',
@@ -66,8 +66,9 @@ else:
 			nmf(nl.test_files)
 	elif model == 'unet':
 		if preprocess :
+			'''Will get an error unless you add the name of the subdirectory'''
 			pp = Preprocessing(nl.data, transform, _filter)
-			# Execute UNet here	
+			# Execute UNet here
 			pass
 		else:
 			# Execute UNet here
