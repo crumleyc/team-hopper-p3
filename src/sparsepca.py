@@ -1,3 +1,16 @@
+"""						
+This script performs Sparse PCA on the test datasets passed as parameter to
+`sparse_pca()` function. The code is based on thunder-extraction NMF algorithm.
+	References:
+	-----------
+	1) www.github.com/thunder-project/thunder-extraction/blob/master/extraction/algorithms/nmf.py
+	2) https://github.com/thunder-project/thunder-extraction/blob/master/example.ipynb
+
+---------------------------
+Author : Aashish Yadavally
+"""
+
+
 from numpy import clip, inf, percentile, asarray, where, size, prod, unique, bincount
 from scipy.ndimage import median_filter
 from sklearn.decomposition import SparsePCA
@@ -11,14 +24,22 @@ import json
 import os
 
 
-def sparse_pca():
-	datasets = ['04.00.test']
+def sparse_pca(datasets, data_folder):
+	"""
+	Implements Sparse PCA algorithm on the set of test sets in the 'datasets' list
 
+	Arguments
+	---------
+		datasets : list
+			List of test sets that the model will extract neurons for
+		data_folder : string
+			Name of folder which holds the data repository
+	"""
 	submission = []
 	for dataset in datasets:
 		print('Loading dataset: %s ' %dataset)
 		dataset_path = 'neurofinder.' + dataset
-		path = os.path.join('D:/Spring2019/DataSciencePracticum/p3', dataset_path, 'images')
+		path = os.path.join(data_folder, 'test', dataset_path, 'images')
 		# Getting the images data from path
 		data = td.images.fromtif(path, ext='tiff')
 		sparse_pca_model = SparsePca(k=5, percentile=97, overlap=0.1)
@@ -35,7 +56,30 @@ def sparse_pca():
 
 
 class SparsePca(NMF):
-	def __init__(self, k=5, max_iter=20, min_size=20, max_size='full', percentile=95, overlap=0.1):
+	"""
+	Subclasses thunder-extraction's NMF class, and the _get function was modified
+	to work on the Sparse-PCA algorithm in Scikit-Learn
+	"""
+	def __init__(self, k=5, max_iter=20, min_size=20, max_size='full', percentile=95,
+		overlap=0.1):
+		"""
+		Initializes SparsePCA class 
+
+		Arguments
+		---------
+			k : int
+				Number of components
+			max_iter : int
+				Maximum iterations for the model
+			min_size : int
+				Minimum size of grid
+			max_size : string
+				Maximum size of the grid
+			percentile : integer
+				Threshold based on which regions are chosen
+			overlap : float
+				Overlap between two consecutive regions
+		"""
 		self.k = k
 		self.max_iter = max_iter
 		self.min_size = min_size
@@ -44,6 +88,19 @@ class SparsePca(NMF):
 		self.percentile = percentile
 
 	def _get(self, block):
+		"""
+		Performs Sparse PCA on a block to identify spatial regions
+
+		Arguments
+		---------
+		block : thunder block
+			Block of images
+
+		Returns
+		-------
+		combined : list
+			List of regions
+		"""
 		dims = block.shape[1:]
 		max_size = prod(dims) / 2 if self.max_size == 'full' else self.max_size
 		data = block.reshape(block.shape[0], -1)
@@ -96,6 +153,3 @@ class SparsePca(NMF):
 					pair = merge(combined)
 
 		return combined		
-
-
-sparse_pca()
