@@ -1,3 +1,12 @@
+"""						
+This script explores various image pre-processing techniques to
+transform the images, which can further be used as the input data
+to the models.
+
+---------------------------
+Author : Caleb Crumley
+"""
+
 import numpy as np
 from skimage import exposure
 from skimage import external
