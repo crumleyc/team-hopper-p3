@@ -15,7 +15,7 @@ import os
 import skimage.io as io
 import skimage.transform as trans
 import numpy as np
-from src.utils.data_prepare import *
+from src.data_loader import get_json_output, mask_to_region
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
@@ -23,10 +23,11 @@ from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStoppin
 from keras import backend as keras
 from keras.layers.normalization import BatchNormalization as bn
 from keras.preprocessing.image import *
+import cv2
 
 
 class UNet:
-    def __init__(self, smooth=1, l2_lambda=0.0002, DropP=0.3, kernel_size=3):
+    def __init__(self, smooth=1, l2_lambda=0.0002, DropP=0.3, kernel_size=3, data ):
         """
         Initializes UNet class with the following parameters.
 
@@ -40,11 +41,15 @@ class UNet:
             Dropping rate to prevent overfitting
         kernel_size : int
             Length of convolutional window size
+	data : string
+	    The name of folder that contains the train, mask and test
+	    folders
         """
         self.smooth = smooth
         self.l2_lambda = l2_lambda
         self.DropP = DropP
         self.kernel_size = kernel_size
+	self.data = data
 
 
     def dice_coef(self, y_true, y_pred):
@@ -226,3 +231,61 @@ class UNet:
         print('Fitting model on the test set...')
         model.fit(x_train_npy, y_train_npy, batch_size=1, epochs=10000, 
             verbose=1, shuffle=True, callbacks=[es])
+
+    def predict(self, input_shape, x_test_npy, save_path):
+	"""
+	Predicts the masks for the test data
+	Arguments
+        ---------
+            input_shape : tuple
+                Shape of input images
+            x_test_npy : numpy file
+                Numpy file for test images
+	    save_path : string
+		Path for saving the masks
+	"""
+	#test_files = os.listdir('../' + self.data + '/test')
+	if not os.path.exist(save_path):
+            os.mkdir(save_path)
+	nl=NeuronLoader()
+	test_files = nl.test_files
+	files = sorted(glob('~/neuron_dataset/test/*.test/images/image00000.tiff'))
+	x_test=[]
+	for i in files:
+		img = cv2.imread(i)
+		x_test.append(img)
+		
+	x_test_npy = np.array(x_test)
+		
+	model = unet(input_shape)
+	model.load_weights('unet.hdf5')
+	model.compile(optimizer = Adam(lr = 1e-4), loss = dice_coef_loss, 
+            metrics = [dice_coef])
+	
+	i=0
+        for im in x_test_npy:
+            
+            og_columns = im.shape[1]
+            og_rows = im.shape[0]
+            
+            image = im[np.newaxis,...]
+            image = image[...,np.newaxis]
+            mask = model.predict(image)
+            mask = mask[0,...]
+            mask = mask[...,0]
+           
+            mask = cv2.resize(mask,(og_columns,og_rows))
+            for x in range(0,mask.shape[0]):
+                for y in range(0,mask.shape[1]):
+                    if mask[x,y] >= 0.5:
+                        mask[x,y] = 255
+                    else:
+                        mask[x,y] = 0
+            cv2.imwrite(save_path + "/" + test_files[i] + ".tiff", mask)
+            print(".......................................",i)
+            i += 1
+	
+	
+	
+
+
