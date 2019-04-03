@@ -3,8 +3,8 @@ This script contains the implementation of the U-Net model, which is popular for
 semantic segmentation of images.
     References:
     ----------
-    1) 
-    2) 
+    1) https://lmb.informatik.uni-freiburg.de/people/ronneber/
+    2) https://arxiv.org/abs/1505.04597 (U-Net: Convolutional Networks for Biomedical Image Segmentation
 
 ---------------------------
 Author : Rutu Gandhi
@@ -16,6 +16,7 @@ import skimage.io as io
 import skimage.transform as trans
 import numpy as np
 from src.data_loader import get_json_output, mask_to_region
+from src.utils.data_prepare import unet_data_prepare
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
@@ -220,6 +221,7 @@ class UNet:
             y_train_npy : numpy file
                 Numpy file for training images
         """
+	
         print("Loading data...")
         print("Loading data done!")
         model = unet(input_shape)
@@ -228,7 +230,9 @@ class UNet:
 
         model_checkpoint = ModelCheckpoint('unet.hdf5', monitor='loss', 
             verbose=1, save_best_only=True)
-        print('Fitting model on the test set...')
+        
+	x_train_npy, y_train_npy = unet_data_prepare()
+	print('Fitting model on the test set...')
         model.fit(x_train_npy, y_train_npy, batch_size=1, epochs=10000, 
             verbose=1, shuffle=True, callbacks=[es])
 
