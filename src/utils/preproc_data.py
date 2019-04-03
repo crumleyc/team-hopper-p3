@@ -1,4 +1,4 @@
-"""						
+"""
 This script explores various image pre-processing techniques to
 transform the images, which can further be used as the input data
 to the models.
@@ -14,10 +14,10 @@ from skimage import filters
 import argparse
 import os
 import sys
-
+import shuttle
 
 class Preprocessing:
-    def __init__(self, data, data_storage, transform, _filter):
+    def __init__(self, data, data_storage='preprocessed_data', transform, _filter):
         """
         Performs preprocessing techniques on the images dataset.
 
@@ -35,7 +35,11 @@ class Preprocessing:
             sys.exit('Data directory does not exist')
         # Directory where the new transformed data will be stored
         new_dir = os.path.join(data, data_storage)
-        os.mkdir(new_dir)
+        if os.isdir(new_dir):
+            shuttle.rmtree(new_dir)
+            os.mkdir(new_dir)
+        else:
+            os.mkdir(new_dir)
         # Only taking a certain number of images from each sample
         img_iterator = 100
         #grabbing the testing and training data
