@@ -8,18 +8,19 @@ dependencies:
   - numpy
   - scipy
   - matplotlib
+  - pyzmq
   - scikit-image
   - keras
   - pandas
   - scikit-learn
+  - requests
   - opencv
   - pip
   - pip:
-    - zmq
-    - regional
-    - thunder-extraction
     - pymatbridge
-  - requests
+    - thunder-extraction
+    - regional
+    - zmq
 
   # Testing
   - pytest

@@ -22,7 +22,7 @@ class Nmf:
     Uses the NMF algorithm to segment out regions and store coordinates 
     of regions in the JSON file.
     """
-    def __init__(self, datasets, k=5, percentile=97, max_iter=50, merge_ratio=0.5):
+    def __init__(self, datasets, k=5, percentile=99, max_iter=50, merge_ratio=0.1, test=False):
         """
         Initializes the Nmf class for finding regions of neurons
 
@@ -38,12 +38,15 @@ class Nmf:
             Maximum number of iterations NMF algorithm will run for
         merge_ratio: float
             Overlap between two adjacent neurons while mapping regions
+        test: boolean
+            Value indicates whether test suite is being run, or model in general
         """
         self.datasets = datasets
         self.k = k
         self.percentile = percentile
         self.max_iter = max_iter
         self.merge_ratio = merge_ratio
+        self.test = test
 
 
     def get_output(self):
@@ -55,15 +58,20 @@ class Nmf:
         for dataset in self.datasets:
             print('Loading dataset: %s ' %dataset)
             dataset_path = 'neurofinder.' + dataset
-            path = os.path.join('~/neuron_dataset/test', dataset_path, 'images')
+            path = os.path.join('D:/Spring2019/DataSciencePracticum/p3', dataset_path, 'images')
             
             # Getting the images data from path
-            data = td.images.fromtif(path, ext='tiff')
+            # Returns only first image of dataset if test is True
+            if self.test == True:
+                data = td.images.fromtif(path, ext='tiff').first()
+            else:
+                data = td.images.fromtif(path, ext='tiff')
+
             nmf = NMF(k=self.k, percentile=self.percentile, max_iter=self.max_iter, 
                 overlap=0.1)
             
             # Fitting on the given dataset
-            model = nmf.fit(data, chunk_size=(50,50), padding=(25,25))
+            model = nmf.fit(data, chunk_size=(100,100), padding=(25,25))
             merged = model.merge(self.merge_ratio)
             
             # Storing found regions in the required format

@@ -24,7 +24,7 @@ import json
 import os
 
 
-def sparse_pca(datasets, data_folder):
+def sparse_pca(datasets, data_folder, test=False):
 	"""
 	Implements Sparse PCA algorithm on the set of test sets in the 'datasets' list
 
@@ -34,6 +34,8 @@ def sparse_pca(datasets, data_folder):
 			List of test sets that the model will extract neurons for
 		data_folder : string
 			Name of folder which holds the data repository
+		test : boolean
+			Value indicates whether the test suite is running or, model in general.
 	"""
 	submission = []
 	for dataset in datasets:
@@ -41,7 +43,11 @@ def sparse_pca(datasets, data_folder):
 		dataset_path = 'neurofinder.' + dataset
 		path = os.path.join(data_folder, 'test', dataset_path, 'images')
 		# Getting the images data from path
-		data = td.images.fromtif(path, ext='tiff')
+		# Returns only first image of dataset if test is True
+		if test == True:
+			data = td.images.fromtif(path, ext='tiff').first()
+		else:
+			data = td.images.fromtif(path, ext='tiff')
 		sparse_pca_model = SparsePca(k=5, percentile=97, overlap=0.1)
 		# Fitting on the given dataset
 		model = sparse_pca_model.fit(data, chunk_size=(50,50), padding=(25,25))
