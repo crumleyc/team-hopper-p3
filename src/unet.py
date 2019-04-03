@@ -3,8 +3,8 @@ This script contains the implementation of the U-Net model, which is popular for
 semantic segmentation of images.
     References:
     ----------
-    1) 
-    2) 
+    1) https://lmb.informatik.uni-freiburg.de/people/ronneber/
+    2) https://arxiv.org/abs/1505.04597 (U-Net: Convolutional Networks for Biomedical Image Segmentation
 
 ---------------------------
 Author : Rutu Gandhi
@@ -16,6 +16,7 @@ import skimage.io as io
 import skimage.transform as trans
 import numpy as np
 from src.data_loader import get_json_output, mask_to_region
+from src.utils.data_prepare import unet_data_prepare
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
@@ -225,10 +226,11 @@ class UNet:
         model = unet(input_shape)
         print("U-Net has been trained.")
         es = EarlyStopping(monitor='loss', mode='min', verbose=1)
-
         model_checkpoint = ModelCheckpoint('unet.hdf5', monitor='loss', 
             verbose=1, save_best_only=True)
-        print('Fitting model on the test set...')
+        
+	x_train_npy, y_train_npy = unet_data_prepare()
+	print('Fitting model on the test set...')
         model.fit(x_train_npy, y_train_npy, batch_size=1, epochs=10000, 
             verbose=1, shuffle=True, callbacks=[es])
 
@@ -244,7 +246,6 @@ class UNet:
 	    save_path : string
 		Path for saving the masks
 	"""
-	#test_files = os.listdir('../' + self.data + '/test')
 	if not os.path.exist(save_path):
             os.mkdir(save_path)
 	nl=NeuronLoader()
@@ -253,19 +254,16 @@ class UNet:
 	x_test=[]
 	regions=[]
 	for i in files:
-		img = cv2.imread(i)
-		x_test.append(img)
+	    img = cv2.imread(i)
+	    x_test.append(img)
 		
 	x_test_npy = np.array(x_test)
-		
 	model = unet(input_shape)
 	model.load_weights('unet.hdf5')
 	model.compile(optimizer = Adam(lr = 1e-4), loss = dice_coef_loss, 
             metrics = [dice_coef])
 	
-	i=0
-        for im in x_test_npy:
-            
+        for i,im in enumerate(x_test_npy, start=0): 
             og_columns = im.shape[1]
             og_rows = im.shape[0]
             
@@ -274,8 +272,8 @@ class UNet:
             mask = model.predict(image)
             mask = mask[0,...]
             mask = mask[...,0]
-           
             mask = cv2.resize(mask,(og_columns,og_rows))
+		
             for x in range(0,mask.shape[0]):
                 for y in range(0,mask.shape[1]):
                     if mask[x,y] >= 0.5:
@@ -285,12 +283,6 @@ class UNet:
             cv2.imwrite(save_path + "/" + test_files[i] + ".tiff", mask)
 	    region = mask_to_region(save_path + "/" + test_files[i] + ".tiff")
 	    regions.append(region)
-            print(".......................................",i)
-            i += 1
+            print("................" + str(i) + ".......................")  
 	datasets = [file[12:] for file in test_files]
 	output = get_json_output(datasets, regions)
-	
-	
-	
-
-
