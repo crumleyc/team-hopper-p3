@@ -237,6 +237,7 @@ class UNet:
     def predict(self, input_shape, x_test_npy, save_path):
 	"""
 	Predicts the masks for the test data
+
 	Arguments
         ---------
             input_shape : tuple
@@ -286,3 +287,15 @@ class UNet:
             print("................" + str(i) + ".......................")  
 	datasets = [file[12:] for file in test_files]
 	output = get_json_output(datasets, regions)
+
+
+    def run(self):
+    	"""
+	Runs the UNet model
+	"""
+
+	if os.path.isfile('unet.hdf5'):
+	    model.predict(self, input_shape, x_test_npy, save_path)
+	else:
+	    model.train(input_shape, x_train_npy, y_train_npy)
+	    model.predict(self, input_shape, x_test_npy, save_path)
