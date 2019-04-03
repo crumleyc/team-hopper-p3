@@ -1,12 +1,16 @@
-from src.nmf import nmf
+from src.nmf import Nmf
 from src.data_loader import NeuronLoader
 import json
+import os
 
 nl = NeuronLoader()
 
-def test_nmf():
+def test_get_output():
 	# Running NMF algorithm on all test sets
-	nmf(nl.test_files)
+	model = Nmf(nl.test_files, test=True)
+	model.get_output()
+	# Testing whether NMF model generates output
+	assert os.path.isfile('submission.json') == True
 	with open('submission.json', 'r'):
 		regions = json.load(json_file)
 	# NMF is run on the Test Set
