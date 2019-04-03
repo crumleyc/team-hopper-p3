@@ -12,8 +12,9 @@ import argparse
 import subprocess
 from src.data_loader import NeuronLoader
 from src.utils.preproc_data import Preprocessing
-from src.nmf import nmf
+from src.nmf import Nmf
 from src.sparsepca import sparse_pca
+from src.unet import UNet
 
 
 parser = argparse.ArgumentParser(description='Team Hopper : Neuron Finder')
@@ -73,18 +74,18 @@ else:
 		if preprocess :
 			print('Preprocessing techniques have not been tested for, with NMF.')
 			print('Proceeding with regular NMF technique.')
-		nmf(nl.test_files)
+		model = Nmf(nl.test_files)
+		model.get_output()
 	elif model == 'unet':
 		if preprocess :
-			'''Will get an error unless you add the name of the subdirectory'''
-			pp = Preprocessing(nl.data, transform, _filter)
-			# Execute UNet here
-			pass
+			Preprocessing(nl.data, transform, _filter)
+			model = UNet(data=nl.data)
+			model.run()
 		else:
-			# Execute UNet here
-			pass
+			model = UNet(data=nl.data)
+			model.run()
 	elif model == 'sparsepca':
 		if preprocess :
 			print('Preprocessing techniques have not been tested for, with Sparse PCA.')
 			print('Proceeding with regular Sparse PCA technique.')
-		sparsepca(nl.test_files)
+		sparse_pca(nl.test_files, nl.data)
