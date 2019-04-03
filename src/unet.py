@@ -251,6 +251,7 @@ class UNet:
 	test_files = nl.test_files
 	files = sorted(glob('~/neuron_dataset/test/*.test/images/image00000.tiff'))
 	x_test=[]
+	regions=[]
 	for i in files:
 		img = cv2.imread(i)
 		x_test.append(img)
@@ -282,8 +283,12 @@ class UNet:
                     else:
                         mask[x,y] = 0
             cv2.imwrite(save_path + "/" + test_files[i] + ".tiff", mask)
+	    region = mask_to_region(save_path + "/" + test_files[i] + ".tiff")
+	    regions.append(region)
             print(".......................................",i)
             i += 1
+	datasets = [file[12:] for file in test_files]
+	output = get_json_output(datasets, regions)
 	
 	
 	
