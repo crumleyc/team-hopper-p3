@@ -40,6 +40,9 @@
   ]
   ```
 
+ ### Ethical Implications
+ These models should only be used to better science and medicine - it should not be used to develop any biological weapons or any other sorts of weapons which can cause harm to the society.  
+
 ## Contributors
 * See [Contributors](CONTRIBUTORS.md) file for more details.
 
