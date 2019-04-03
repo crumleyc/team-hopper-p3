@@ -14,13 +14,13 @@
   `gcloud compute scp --recurse /complete/link/to/repository/* <user>@<instance_name-vm>:/home/<user>/`
 
   Furthermore, to setup a VM instance with all the prerequisite packages used in the project, do the following:
-  1. Install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/)
+  1. Install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) using the `conda_install.sh` file in the 'scripts' directory using the command: `$ bash scripts/conda_install.sh`
   2. Create a conda environment from the included `environment.yml` file using the following command:
      
      `$ conda env create -f environment.yml`
   3. Activate the environment
      
-     `$ source activate hopper`
+     `$ conda activate hopper`
 
   ### Usage
   To run the code and generate output prediction masks in the `/results` directory, the user can navigate to the folder containing the file 'team-hopper.py', and run it using the command: `$ python team-hopper.py --options`. The user can get a description of the options by using the command: `$ python team-hopper.py -help`.
@@ -39,9 +39,8 @@
       }                                                    
   ]
   ```
-  ### Results
 
-  ## Contributors
+## Contributors
 * See [Contributors](CONTRIBUTORS.md) file for more details.
 
 ## License
